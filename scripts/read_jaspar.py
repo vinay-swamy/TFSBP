@@ -104,10 +104,16 @@ for record in fa:
           'aa_seq_mat' : onehot_seq_mat, 
           'pwm' :pwm }
         )
-
+#%%
+available_up_id = [x['uniprot_id'] for x in seq_mat_dict ]
+filtered_metadata = jaspar_ids.reset_index(drop=False).pipe(lambda x: x[x.uniprot_id.isin(available_up_id)])
+filtered_metadata.to_csv('jaspar_protein_metadata.csv',index=False)
 # %%
 with open('all_jaspar_pwm_with_aa_seq.pickle', 'wb+') as outstream:
     pickle.dump(seq_mat_dict, outstream)
+#%%
+
+
 
 # %%
 seq_mat_dict

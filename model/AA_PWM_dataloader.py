@@ -6,10 +6,12 @@ import numpy as np
 
 
 class AaPwmDataset(Dataset):
-    def __init__(self, pickle_file, aa_mat_size, pwm_mat_size):
-        with open(pickle_file, 'rb') as instream:
-            dict_list = pickle.load(instream)
-        self.AA_PWM_dict_list = dict_list
+    def __init__(self, metadata, dict_list, aa_mat_size, pwm_mat_size):
+        
+        valid_ids = set(metadata['uniprot_id'].to_list())
+        self.AA_PWM_dict_list = [x for x in dict_list if x['uniprot_id'] in valid_ids]
+        if len(self.AA_PWM_dict_list) != len(valid_ids):
+            print("Warning: Not all IDs in metadata matched to dict list")
         self.aa_mat_size = aa_mat_size 
         self.pwm_mat_size = pwm_mat_size
         self.pwm_center = int(self.pwm_mat_size/2)
