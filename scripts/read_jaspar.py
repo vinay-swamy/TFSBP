@@ -110,3 +110,9 @@ with open('all_jaspar_pwm_with_aa_seq.pickle', 'wb+') as outstream:
     pickle.dump(seq_mat_dict, outstream)
 
 # %%
+seq_mat_dict
+protein_lens = np.asarray([x['aa_seq_mat'].shape[1] for x in seq_mat_dict ])
+## use 896 as the aa mat window size
+bs_lens = np.asarray([x['pwm'].shape[1] for x in seq_mat_dict ])
+## use 19 as the PWM window size.
+# %%# %%
