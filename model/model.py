@@ -51,6 +51,18 @@ class BasicTFBSPredictor(nn.Module):
             nn.Dropout(.3)
         )
 
+        self.second_dense = nn.Sequential(
+            nn.Linear(in_features=4*PWM_mat_size, 
+                      out_features=4*PWM_mat_size),
+            nn.ReLU(),
+            nn.Dropout(.3)
+        )
+        self.third_dense = nn.Sequential(
+            nn.Linear(in_features=4*PWM_mat_size, 
+                      out_features=4*PWM_mat_size),
+            nn.ReLU(),
+            nn.Dropout(.3)
+        )
         self.final_dense = nn.Linear(in_features=4*PWM_mat_size, out_features=4*PWM_mat_size)
         self.sm = nn.Softmax(dim = 1)
     def forward(self, x):
@@ -59,7 +71,9 @@ class BasicTFBSPredictor(nn.Module):
         x=self.second_conv(x)       
         x=self.last_conv(x)       
         x=torch.flatten(x, 1)       
-        x=self.first_dense(x)       
+        x=self.first_dense(x)
+        x=self.second_dense(x)
+        x=self.third_dense(x)
         x=self.final_dense(x)      
         x=torch.reshape(x, (-1,  4,self.PWM_mat_size))
         x=self.sm(x)

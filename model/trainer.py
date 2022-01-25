@@ -55,7 +55,7 @@ class Trainer:
                                         batch_size=batch_size
                                                         )
         
-        
+        model.to(device)
         self.model = model
         self.loss_fn = loss_fn
         self.optimizer = optimizer
@@ -86,7 +86,7 @@ class Trainer:
         n_batches = len(dataloader)
         all_loss = np.repeat([None],n_batches )
         with torch.no_grad():
-            for batch_num, batch in enumerate(self.dataloader):
+            for batch_num, batch in enumerate(dataloader):
                 feature, label = batch 
                 feature = feature.to(self.device)
                 label = label.to(self.device)
@@ -99,10 +99,11 @@ class Trainer:
         all_training_loss = []
         all_validation_loss = []
         for e in range(self.n_epochs):
-            train_loss = self.train()
+            train_loss = self.train(self.training_data)
             all_training_loss.append(train_loss)
-            validation_loss = self.test()
+            validation_loss = self.test(self.validation_data)
             all_validation_loss.append(validation_loss)
+            print(f"{str(e+1)}/{str(self.n_epochs)} done")
         return pd.DataFrame({'epoch' : list(range(self.n_epochs)), 
                              'train_loss' : all_training_loss,
                              'validation_loss' : all_validation_loss
