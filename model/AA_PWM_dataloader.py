@@ -1,9 +1,16 @@
 
 import torch
 from torch.utils.data import Dataset 
-import pickle
 import numpy as np
+import pandas as pd
 
+def torch2icdf(x):
+    x=x.numpy()
+    x=np.log2(x+1)
+    x=np.sum(x, 0)
+    x=1/x
+    x[x==np.inf]=0
+    return pd.DataFrame({'x':list(range(len(x))), 'y': x })
 
 class AaPwmDataset(Dataset):
     def __init__(self, metadata, dict_list, aa_mat_size, pwm_mat_size):
@@ -45,3 +52,18 @@ class AaPwmDataset(Dataset):
         rhs=min([mat.shape[1], self.aa_mat_size])
         padded_mat[:,:rhs]=mat[:,:rhs]
         return padded_mat
+    def plot_ic(self, aggfn):
+        all_ic = [ torch2icdf(self.__getitem__(i)[1]) for i in range(self.__len__()) ]
+        all_ic = pd.concat(all_ic)     
+        summed_ic = all_ic.groupby('x').agg(aggfn).reset_index(drop=False)
+        import plotnine as pn
+        p=(
+            pn.ggplot(summed_ic) +
+                pn.geom_col(pn.aes(x='x', y='y')) +
+                pn.xlab('centered PWM position') + 
+                pn.ylab('Aggregated Information content\n(IC =1/log2(p(nt)))') +
+                pn.theme_bw()
+
+        )
+        print(p)
+        return
